@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import YouTube from 'react-youtube';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faCopy } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faCopy, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { musicList, MusicItem } from '@/data/musics';
 import { trackGAEvent } from '@/components/GoogleAnalytics';
 import { useDeviceSize } from '@/utils/useDeviceSize';
@@ -33,6 +33,12 @@ const Home = () => {
     const urlParams = new URLSearchParams(new URL(url).search);
     return urlParams.get('v');
   };
+
+  const shortYTUrl = (url: string): string => {
+    const videoId = extractVideoId(url);
+    return videoId ? `https://youtu.be/${videoId}` : url;
+  }
+
 
   const playVideo = (url: string) => {
     const videoId = extractVideoId(url);
@@ -73,9 +79,9 @@ const Home = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Just listen back to original music</h1>
-      
+
       <div className="mb-6">
-        <label htmlFor="album-filter" className="mr-4">Filter by Album:</label>
+        <label htmlFor="album-filter" className="mr-4 text-white">Filter by Album:</label>
         <select
           id="album-filter"
           value={selectedAlbum}
@@ -90,47 +96,50 @@ const Home = () => {
 
       </div>
 
-      <ul>
+      <div className="flex flex-wrap -mx-2 mb-4">
         {filteredMusicList.map((item, index) => (
-          <li key={index} className="mb-6 p-4 border border-gray-700 rounded-lg shadow-md">
-            <p><strong>Album Name:</strong> {item.albumName}</p>
-            <p><strong>Title (Copy):</strong> {item.titleCopy}</p>
-            <p><strong>Title (Original):</strong> {item.titleOriginal}</p>
-            <p><strong>Author:</strong> {item.author}</p>
-            <a href={item.youtubeUrl} target="_blank" rel="noreferrer" className="text-blue-500 me-5">{item.youtubeUrl}</a>
-            {isClient && (
-              <button 
-                onClick={() => copyToClipboard(item.youtubeUrl)} 
-                className="mr-4 px-4 py-2 bg-green-500 text-white rounded"
+          <div key={index}  className="w-full sm:w-1 md:w-1/2 lg:w-1/3 p-2">
+            <div className="mb-6 p-3 border border-gray-700 rounded-lg shadow-md">
+              <p className="text-white"><strong>Album Name:</strong> {item.albumName}</p>
+              <p className="text-white"><strong>Title (Copy):</strong> {item.titleCopy}</p>
+              <p className="text-white"><strong>Title (Original):</strong> {item.titleOriginal}</p>
+              <p className="text-white"><strong>Author:</strong> {item.author}</p>
+              <a href={item.youtubeUrl} target="_blank" rel="noreferrer" className="text-blue-500 me-2 text-small">{shortYTUrl(item.youtubeUrl)}</a>
+              {isClient && (
+                <button
+                  onClick={() => copyToClipboard(shortYTUrl(item.youtubeUrl))}
+                  className="mr-2 px-2 py-1 bg-green-500 rounded"
+                >
+                  <FontAwesomeIcon icon={faCopy} className="mr-2" />
+                </button>
+              )}
+              <button
+                onClick={() => playVideo(item.youtubeUrl)}
+                className="px-2 py-1 bg-red-500 rounded"
               >
-                <FontAwesomeIcon icon={faCopy} className="mr-2" />
+                <FontAwesomeIcon icon={faPlay} className="mr-2" />
+                Play
               </button>
-            )}
-            <button 
-              onClick={() => playVideo(item.youtubeUrl)} 
-              className="px-4 py-2 bg-blue-500 text-white rounded"
-            >
-              Play
-            </button>
-          </li>
+            </div>
+          </div>
         ))}
-      </ul>
-      
+      </div>
+
       {playingVideoId && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50"
         >
           <div className="relative">
-            <button 
-              onClick={() => setPlayingVideoId(null)} 
+            <button
+              onClick={() => setPlayingVideoId(null)}
               className="absolute top-2 right-2 text-white text-2xl"
             >
               <FontAwesomeIcon icon={faTimes} />
             </button>
-            <YouTube 
-              videoId={playingVideoId} 
-              opts={opts} 
-              onEnd={() => setPlayingVideoId(null)} 
+            <YouTube
+              videoId={playingVideoId}
+              opts={opts}
+              onEnd={() => setPlayingVideoId(null)}
             />
           </div>
         </div>
