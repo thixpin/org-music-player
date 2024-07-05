@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faCopy } from '@fortawesome/free-solid-svg-icons';
 import { musicList, MusicItem } from '@/data/musics';
 import { trackGAEvent } from '@/components/GoogleAnalytics';
+import { useDeviceSize } from '@/utils/useDeviceSize';
 
 
 
@@ -51,12 +52,21 @@ const Home = () => {
   };
 
   const opts = {
-    height: '390',
-    width: '640',
+    height: '480',
+    width: '853',
     playerVars: {
       autoplay: 1,
     },
   };
+
+  const [width] = useDeviceSize();
+
+  if (width < 853) {
+    const maxWidth = width - 6;
+    const maxHeight = maxWidth / 853 * 480;
+    opts.height = maxHeight.toString();
+    opts.width = maxWidth.toString();
+  }
 
   const uniqueAlbums = Array.from(new Set(musicList.map(item => item.albumName)));
 
