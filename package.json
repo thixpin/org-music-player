@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "static": "next build && touch ./out/.nojekyll && echo 'bclp.thixpin.me' > ./out/CNAME",
-    "deploy": "npm run static && gh-pages -d out -b main -t",
+    "deploy": "npm run static && gh-pages -d out -b gh-page -t",
     "lint": "next lint"
   },
   "dependencies": {
